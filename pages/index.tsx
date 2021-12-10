@@ -1,3 +1,4 @@
+import InputFile from "../components/input-file";
 import React, { useState } from "react";
 import { csvToArray } from "../helpers/csv-reader";
 import { errorHandler, errorMessage } from "../helpers/error-handler";
@@ -32,34 +33,24 @@ const Home = () => {
 
   return (
     <>
-      {console.log("bank statement", bankStatement)}
-      {console.log("transaction statement", transactionStatement)}
       <div className="flex justify-center border text-2xl font-bold">
         Data Reconciliation
       </div>
 
       <div className="border m-8">
-        <div className="border flex my-4">
-          <p className="font-semibold w-64">Bank Statement :</p>
-          <input
-            id="source"
-            name="source"
-            type={"file"}
-            accept={".csv"}
-            onChange={(e) => onSelectFile(e, setBankStatement)}
-          />
-        </div>
+        <InputFile
+          name={"Bank Statement"}
+          onSelect={(e) => {
+            onSelectFile(e, setBankStatement);
+          }}
+        />
+        <InputFile
+          name="Transaction Statement"
+          onSelect={(e) => {
+            onSelectFile(e, setTransactionStatement);
+          }}
+        />
 
-        <div className="border flex my-4">
-          <p className="font-semibold w-64">Transaction Statement :</p>
-          <input
-            id="source"
-            name="source"
-            type={"file"}
-            accept={".csv"}
-            onChange={(e) => onSelectFile(e, setTransactionStatement)}
-          />
-        </div>
         <div className="flex justify-center">
           <Button variant="contained" className="w-48">
             Check

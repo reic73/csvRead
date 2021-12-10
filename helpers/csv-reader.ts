@@ -2,7 +2,6 @@ import { standarNaming } from "./standard-naming";
 const delimiter = ",";
 
 export const csvToArray = (rawData: string): any[] => {
-  console.log("input helper", rawData);
   const rawHeaders = rawData.slice(0, rawData.indexOf("\n")).split(delimiter);
   const rawRows = rawData
     .slice(rawData.indexOf("\n") + 1, rawData.lastIndexOf("\n"))
