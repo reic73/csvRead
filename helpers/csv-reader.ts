@@ -10,9 +10,6 @@ export const csvToArray = (rawData: string): any[] => {
 
   const rows = csvArrayToObject(rawRows, rawHeaders);
   return rows;
-  console.log("rawData", rawData);
-  console.log("rawRow", rawRows);
-  console.log("rows", rows);
 };
 
 const csvArrayToObject = (rawRows: string[], rawHeaders: string[]): any[] => {
