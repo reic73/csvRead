@@ -7,7 +7,13 @@ import Button from "@mui/material/Button";
 const Home = () => {
   const [bankStatement, setBankStatement] = useState<any[]>([]);
   const [transactionStatement, setTransactionStatement] = useState<any[]>([]);
-  const onSelectFile = (e: any, callBack: any): any => {
+  const [headers, setHeaders] = useState<any[]>([]);
+
+  const onSelectFile = (
+    e: any,
+    callBack: any,
+    isReportHeader: boolean = false
+  ): any => {
     if (e?.target.files[0]) {
       const { type } = e.target.files[0];
       const fileType = type.slice(type.indexOf("/") + 1);
@@ -22,7 +28,11 @@ const Home = () => {
         const emptyCsv = `\r\n`;
         const csvRawData = reader.result ? reader.result.toString() : emptyCsv;
         const csvData = csvToArray(csvRawData);
-        callBack(csvData);
+        callBack(csvData.rows);
+        if (isReportHeader) {
+          setHeaders(csvData.headers);
+        }
+
         return;
       });
     } else {
@@ -33,29 +43,32 @@ const Home = () => {
 
   return (
     <>
-      <div className="flex justify-center border text-2xl font-bold">
+      <div className="flex justify-center text-2xl font-bold">
         Data Reconciliation
       </div>
 
-      <div className="border m-8">
-        <InputFile
-          name={"Bank Statement"}
-          onSelect={(e) => {
-            onSelectFile(e, setBankStatement);
-          }}
-        />
-        <InputFile
-          name="Transaction Statement"
-          onSelect={(e) => {
-            onSelectFile(e, setTransactionStatement);
-          }}
-        />
-
-        <div className="flex justify-center">
-          <Button variant="contained" className="w-48">
-            Check
-          </Button>
+      <div className=" m-8">
+        <div className="p-4 border rounded">
+          <InputFile
+            name={"Bank Statement"}
+            onSelect={(e) => {
+              onSelectFile(e, setBankStatement);
+            }}
+          />
+          <InputFile
+            name="Transaction Statement"
+            onSelect={(e) => {
+              onSelectFile(e, setTransactionStatement, true);
+            }}
+          />
+          <div className="flex justify-center my-3">
+            <Button variant="contained" className="w-48">
+              Check
+            </Button>
+          </div>
         </div>
+
+        <div className=" my-4 p-4 border rounded"></div>
       </div>
     </>
   );

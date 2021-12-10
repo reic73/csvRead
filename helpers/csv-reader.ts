@@ -1,14 +1,19 @@
 import { standarNaming } from "./standard-naming";
 const delimiter = ",";
 
-export const csvToArray = (rawData: string): any[] => {
+interface ICsvToArray {
+  headers: string[];
+  rows: string[];
+}
+
+export const csvToArray = (rawData: string): ICsvToArray => {
   const rawHeaders = rawData.slice(0, rawData.indexOf("\n")).split(delimiter);
   const rawRows = rawData
     .slice(rawData.indexOf("\n") + 1, rawData.lastIndexOf("\n"))
     .split("\n");
 
   const rows = csvArrayToObject(rawRows, rawHeaders);
-  return rows;
+  return { headers: rawHeaders, rows };
 };
 
 const csvArrayToObject = (rawRows: string[], rawHeaders: string[]): any[] => {

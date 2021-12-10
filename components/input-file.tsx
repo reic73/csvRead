@@ -10,7 +10,7 @@ const InputFile = (props: IInputFile) => {
 
   return (
     <>
-      <div className="border flex my-4">
+      <div className="flex my-4">
         <p className="font-semibold w-64">{props.name}</p>
         <input
           id={slug}
