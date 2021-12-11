@@ -1,8 +1,13 @@
-import { getStandardNaming } from "./common-helper";
+import {
+  getStandardNaming,
+  getObjectFromList,
+  compareData,
+  getTextFromObject,
+} from "./common-helper";
 
 interface IMismatchedData {
-  success: boolean;
-  data: any[];
+  arrayFormatList: any[];
+  objectFormatList: any[];
 }
 
 export const getMismatchedData = (
@@ -10,90 +15,61 @@ export const getMismatchedData = (
   transactionStatement: any[],
   rawHeaders: any[]
 ): IMismatchedData => {
-  let concatHeaders = [];
+  let additionalHeaders = [];
+  additionalHeaders = rawHeaders.concat(["Remarks"]);
+  const standardNamingHeaders = getStandardNaming(additionalHeaders);
 
-  concatHeaders = rawHeaders.concat(["Remarks"]);
-  const standardHeaders = getStandardNaming(concatHeaders);
-
-  const mismatchedData = validateData(
+  const mismatchedData = findMismatchData(
     bankStatement,
     transactionStatement,
-    standardHeaders
+    standardNamingHeaders
   );
 
   const toReturn = {
-    success: true,
-    data: mismatchedData.data,
-    modifiedTransactionStatement: mismatchedData.modifiedTransactionStatement,
+    arrayFormatList: mismatchedData.arrayFormat,
+    objectFormatList: mismatchedData.objectFormat,
   };
   return toReturn;
 };
 
-const validateData = (
+const findMismatchData = (
   bankStatement: any[],
   transactionStatement: any[],
   headers: any[]
 ) => {
-  const toReturn: any[] = [];
-  const mismatchTransaction: any[] = [];
-  toReturn.push(headers);
-  const bankStatementList: { [index: string]: any } =
-    getObjectFromArray(bankStatement);
+  const mismatchDataInArrayList: any[] = [];
+  const mismatchDataInObjectList: any[] = [];
+  const bankStatementData: { [index: string]: any } =
+    getObjectFromList(bankStatement);
+
+  mismatchDataInArrayList.push(headers);
 
   transactionStatement.map((transaction) => {
     const uniqueKeys = Object.keys(transaction);
     const id = uniqueKeys[0];
-    const bankDetails = bankStatementList[id] ? bankStatementList[id] : {};
+    const bankDetails = bankStatementData[id] ? bankStatementData[id] : {};
     const transactionDetails = transaction[id];
 
-    const remarks = findDifference(transactionDetails, bankDetails);
-    const hasRemark = Object.keys(remarks).length > 0;
-    if (hasRemark) {
-      const mismatchData = {
+    const differences = compareData(transactionDetails, bankDetails);
+
+    const hasDifferences = Object.keys(differences).length > 0;
+    if (hasDifferences) {
+      const mismatchData: { [index: string]: any } = {
         ...transaction[id],
-        remarks,
+        remarks: differences,
       };
 
-      const transactionDetail = Object.values(transactionDetails);
-      const remarkText = JSON.stringify(remarks);
-      const pattern = /[a-z]|[0-9]|[:#]/gi;
-      const modifiedRemarkText = remarkText
-        .match(pattern)
-        ?.join("")
-        .replace(/#/g, " ");
-      transactionDetail.push(modifiedRemarkText);
-      toReturn.push(transactionDetail);
-      mismatchTransaction.push(mismatchData);
+      const mismatchDataArray: string[] = Object.values(transactionDetails);
+      const remarkText = getTextFromObject(differences);
+      mismatchDataArray.push(remarkText);
+
+      mismatchDataInArrayList.push(mismatchDataArray);
+      mismatchDataInObjectList.push(mismatchData);
     }
   });
 
   return {
-    modifiedTransactionStatement: mismatchTransaction,
-    data: toReturn,
+    objectFormat: mismatchDataInObjectList,
+    arrayFormat: mismatchDataInArrayList,
   };
-};
-
-const getObjectFromArray = (rawData: any[]): { [index: string]: any } => {
-  const toReturn: { [index: string]: any } = {};
-  rawData.map((data) => {
-    const key = Object.keys(data);
-    const object = Object.values(data);
-
-    toReturn[key[0]] = object[0];
-  });
-  return toReturn;
-};
-
-const findDifference = (
-  originalSource: { [index: string]: any },
-  source: { [index: string]: any }
-): { [index: string]: any } => {
-  const remark: { [index: string]: any } = {};
-  for (const key in originalSource) {
-    const isEqual = originalSource[key] == source[key];
-    if (!isEqual) {
-      remark[key] = `${source[key]}#`;
-    }
-  }
-  return remark;
 };

@@ -63,10 +63,9 @@ const Home = () => {
         transactionStatement,
         rawHeaders
       );
+      console.log("check result", checkResult);
 
-      if (checkResult.success) {
-        setReconcileData(checkResult.data);
-      }
+      // setReconcileData(checkResult.data);
     }
   };
 
