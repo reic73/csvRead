@@ -1,4 +1,4 @@
-export const standarNaming: { [index: string]: string } = {
+export const standardNaming: { [index: string]: string } = {
   Amt: "amount",
   Amount: "amount",
   Descr: "description",

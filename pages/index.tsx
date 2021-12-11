@@ -3,11 +3,15 @@ import React, { useState } from "react";
 import { csvToArray } from "../helpers/csv-reader";
 import { errorHandler, errorMessage } from "../helpers/error-handler";
 import Button from "@mui/material/Button";
+import StickyHeadTable from "../components/transaction-table";
+import { getReconciliationData } from "../helpers/reconcile-data";
 
 const Home = () => {
   const [bankStatement, setBankStatement] = useState<any[]>([]);
   const [transactionStatement, setTransactionStatement] = useState<any[]>([]);
-  const [headers, setHeaders] = useState<any[]>([]);
+  const [rawHeaders, setRawHeaders] = useState<any[]>([]);
+  const [reconcileData, setReconcileData] = useState<any[]>([]);
+  const [canCheck, setCanCheck] = useState<boolean>(true);
 
   const onSelectFile = (
     e: any,
@@ -28,9 +32,15 @@ const Home = () => {
         const emptyCsv = `\r\n`;
         const csvRawData = reader.result ? reader.result.toString() : emptyCsv;
         const csvData = csvToArray(csvRawData);
+
+        if (!csvData.isSuccess) {
+          errorHandler(errorMessage["NO_HEADER_ID"]);
+          return;
+        }
+
         callBack(csvData.rows);
         if (isReportHeader) {
-          setHeaders(csvData.headers);
+          setRawHeaders(csvData.rawHeaders);
         }
 
         return;
@@ -38,6 +48,28 @@ const Home = () => {
     } else {
       errorHandler(errorMessage["FILE_IS_NOT_FOUND"]);
       return;
+    }
+  };
+
+  const onCheck = () => {
+    const hasRequiredInfo =
+      bankStatement.length > 0 &&
+      transactionStatement.length > 0 &&
+      rawHeaders.length > 0;
+    setCanCheck(hasRequiredInfo);
+    if (hasRequiredInfo) {
+      const checkResult = getReconciliationData(
+        bankStatement,
+        transactionStatement,
+        rawHeaders
+      );
+      // const checkResult = {
+      //   success: false,
+      //   data: [],
+      // };
+      if (checkResult.success) {
+        setReconcileData(checkResult.data);
+      }
     }
   };
 
@@ -62,13 +94,28 @@ const Home = () => {
             }}
           />
           <div className="flex justify-center my-3">
-            <Button variant="contained" className="w-48">
-              Check
-            </Button>
+            <div className="flex flex-col">
+              <Button variant="contained" className="w-48" onClick={onCheck}>
+                Check
+              </Button>
+              {!canCheck ? (
+                <div className="flex justify-center text-xs text-red-600">
+                  *Data belum lengkap
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
 
-        <div className=" my-4 p-4 border rounded"></div>
+        <div className=" my-4 p-4 border rounded">
+          {reconcileData.length > 0 ? (
+            <StickyHeadTable />
+          ) : (
+            <div className="border flex justify-center text-gray-500">
+              Belum ada data
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

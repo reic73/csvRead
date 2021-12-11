@@ -1,9 +1,15 @@
-import { standarNaming } from "./standard-naming";
+import { getStandardNaming } from "./common-helper";
 const delimiter = ",";
 
 interface ICsvToArray {
-  headers: string[];
-  rows: string[];
+  rawHeaders: string[];
+  rows: any[];
+  isSuccess: boolean;
+}
+
+interface ICsvArrayToObject {
+  isSuccess: boolean;
+  data: any[];
 }
 
 export const csvToArray = (rawData: string): ICsvToArray => {
@@ -12,28 +18,39 @@ export const csvToArray = (rawData: string): ICsvToArray => {
     .slice(rawData.indexOf("\n") + 1, rawData.lastIndexOf("\n"))
     .split("\n");
 
-  const rows = csvArrayToObject(rawRows, rawHeaders);
-  return { headers: rawHeaders, rows };
+  const csvObj = csvArrayToObject(rawRows, rawHeaders);
+  const rows = csvObj.data;
+
+  const toReturn = {
+    rawHeaders: csvObj.isSuccess ? rawHeaders : [],
+    rows: csvObj.isSuccess ? rows : [],
+    isSuccess: csvObj.isSuccess,
+  };
+  return toReturn;
 };
 
-const csvArrayToObject = (rawRows: string[], rawHeaders: string[]): any[] => {
-  const toReturn: any = [];
-  const headers = toStandardNaming(rawHeaders);
+const csvArrayToObject = (
+  rawRows: string[],
+  rawHeaders: string[]
+): ICsvArrayToObject => {
+  let isSuccess = true;
+  const toReturn: any[] = [];
+  const headers = getStandardNaming(rawHeaders);
   rawRows.map((row) => {
-    const rowObj: { [index: string]: string } = {};
+    const rowDetails: { [index: string]: string } = {};
+    const rowObj: { [index: string]: any } = {};
     const values = row.split(delimiter);
     values.map((value, index) => {
-      rowObj[headers[index]] = value;
+      rowDetails[headers[index]] = value;
     });
+
+    const id = rowDetails.id;
+    if (id == undefined) {
+      isSuccess = false;
+    }
+    rowObj[id] = rowDetails;
     toReturn.push(rowObj);
   });
-  return toReturn;
-};
 
-const toStandardNaming = (keys: string[]) => {
-  const toReturn: string[] = [];
-  keys.map((key) => {
-    toReturn.push(standarNaming[key]);
-  });
-  return toReturn;
+  return { isSuccess, data: toReturn };
 };
