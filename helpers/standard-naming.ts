@@ -5,4 +5,5 @@ export const standardNaming: { [index: string]: string } = {
   Description: "description",
   Date: "date",
   ID: "id",
+  Remarks: "remarks",
 };

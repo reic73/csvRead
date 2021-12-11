@@ -4,7 +4,7 @@ import { csvToArray } from "../helpers/csv-reader";
 import { errorHandler, errorMessage } from "../helpers/error-handler";
 import Button from "@mui/material/Button";
 import StickyHeadTable from "../components/transaction-table";
-import { getReconciliationData } from "../helpers/reconcile-data";
+import { getMismatchedData } from "../helpers/reconcile";
 
 const Home = () => {
   const [bankStatement, setBankStatement] = useState<any[]>([]);
@@ -58,15 +58,12 @@ const Home = () => {
       rawHeaders.length > 0;
     setCanCheck(hasRequiredInfo);
     if (hasRequiredInfo) {
-      const checkResult = getReconciliationData(
+      const checkResult = getMismatchedData(
         bankStatement,
         transactionStatement,
         rawHeaders
       );
-      // const checkResult = {
-      //   success: false,
-      //   data: [],
-      // };
+
       if (checkResult.success) {
         setReconcileData(checkResult.data);
       }
