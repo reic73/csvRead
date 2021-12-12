@@ -10,8 +10,8 @@ const Home = () => {
   const [bankStatement, setBankStatement] = useState<any[]>([]);
   const [transactionStatement, setTransactionStatement] = useState<any[]>([]);
   const [rawHeaders, setRawHeaders] = useState<any[]>([]);
-  const [reconcileData, setReconcileData] = useState<any[]>([]);
-  const [canCheck, setCanCheck] = useState<boolean>(true);
+  const [mismatchData, setMisMatchData] = useState<any[]>([]);
+  const [canCheck, setCanCheck] = useState<undefined | boolean>(undefined);
 
   const onSelectFile = (
     e: any,
@@ -58,14 +58,13 @@ const Home = () => {
       rawHeaders.length > 0;
     setCanCheck(hasRequiredInfo);
     if (hasRequiredInfo) {
-      const checkResult = getMismatchedData(
+      const mismatchResponse = getMismatchedData(
         bankStatement,
         transactionStatement,
         rawHeaders
       );
-      console.log("check result", checkResult);
-
-      // setReconcileData(checkResult.data);
+      console.log("check result", mismatchResponse);
+      setMisMatchData(mismatchResponse.objectFormatList);
     }
   };
 
@@ -94,7 +93,7 @@ const Home = () => {
               <Button variant="contained" className="w-48" onClick={onCheck}>
                 Check
               </Button>
-              {!canCheck ? (
+              {canCheck != undefined && !canCheck ? (
                 <div className="flex justify-center text-xs text-red-600">
                   *Data belum lengkap
                 </div>
@@ -104,11 +103,11 @@ const Home = () => {
         </div>
 
         <div className=" my-4 p-4 border rounded">
-          {reconcileData.length > 0 ? (
+          {mismatchData.length > 0 ? (
             <StickyHeadTable />
           ) : (
             <div className="border flex justify-center text-gray-500">
-              Belum ada data
+              {canCheck ? " No mismatch data found" : "Please select file"}
             </div>
           )}
         </div>

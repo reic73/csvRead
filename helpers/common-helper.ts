@@ -5,6 +5,7 @@ export const getStandardNaming = (keys: string[]) => {
   keys.map((key) => {
     toReturn.push(standardNaming[key]);
   });
+
   return toReturn;
 };
 
@@ -42,5 +43,47 @@ export const getTextFromObject = (objectData: {
   const objectString = JSON.stringify(objectData);
   const pattern = /[a-z]|[0-9]|[:#]/gi;
   const text = objectString.match(pattern)?.join("").replace(/#/g, " ");
+
   return text ? text : "";
+};
+
+export const createInitialObjectFromArray = (
+  rawData: any[]
+): {
+  [index: string]: any;
+} => {
+  const toReturn: { [index: string]: number } = {};
+  rawData.map((data) => {
+    toReturn[data] = 0;
+  });
+
+  return toReturn;
+};
+
+export const getOldestDate = (
+  firstDate: undefined | string,
+  secondDate: undefined | string
+): undefined | string => {
+  if (!firstDate) return secondDate;
+  if (!secondDate) return firstDate;
+
+  const firstDateFormat = new Date(firstDate);
+  const secondDateFormat = new Date(secondDate);
+  const isOldest = firstDateFormat < secondDateFormat;
+
+  return isOldest ? firstDate : secondDate;
+};
+
+export const getLatestDate = (
+  firstDate: undefined | string,
+  secondDate: undefined | string
+): undefined | string => {
+  if (!firstDate) return secondDate;
+  if (!secondDate) return firstDate;
+
+  const firstDateFormat = new Date(firstDate);
+  const secondDateFormat = new Date(secondDate);
+  const isLatest = firstDateFormat > secondDateFormat;
+
+  return isLatest ? firstDate : secondDate;
 };

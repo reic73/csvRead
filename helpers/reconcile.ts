@@ -4,6 +4,7 @@ import {
   compareData,
   getTextFromObject,
 } from "./common-helper";
+import { getSummaryReport } from "./summary-report";
 
 interface IMismatchedData {
   arrayFormatList: any[];
@@ -28,6 +29,8 @@ export const getMismatchedData = (
   const toReturn = {
     arrayFormatList: mismatchedData.arrayFormat,
     objectFormatList: mismatchedData.objectFormat,
+    summaryReport: mismatchedData.summaryReport,
+    additionalHeaders,
   };
   return toReturn;
 };
@@ -39,6 +42,7 @@ const findMismatchData = (
 ) => {
   const mismatchDataInArrayList: any[] = [];
   const mismatchDataInObjectList: any[] = [];
+  const processedData: any[] = [];
   const bankStatementData: { [index: string]: any } =
     getObjectFromList(bankStatement);
 
@@ -51,11 +55,16 @@ const findMismatchData = (
     const transactionDetails = transaction[id];
 
     const differences = compareData(transactionDetails, bankDetails);
+    const allProcessData: { [index: string]: any } = {
+      ...transactionDetails,
+      remarks: differences,
+    };
+    processedData.push(allProcessData);
 
     const hasDifferences = Object.keys(differences).length > 0;
     if (hasDifferences) {
       const mismatchData: { [index: string]: any } = {
-        ...transaction[id],
+        ...transactionDetails,
         remarks: differences,
       };
 
@@ -68,8 +77,12 @@ const findMismatchData = (
     }
   });
 
+  const summaryReport = getSummaryReport(processedData, headers);
+  console.log("summaryReport", summaryReport);
+
   return {
     objectFormat: mismatchDataInObjectList,
     arrayFormat: mismatchDataInArrayList,
+    summaryReport: summaryReport,
   };
 };
