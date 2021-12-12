@@ -10,7 +10,10 @@
     "watch-server": "next"
   },
   "dependencies": {
+    "@emotion/react": "^11.7.0",
+    "@emotion/styled": "^11.6.0",
     "@material-ui/core": "^4.12.3",
+    "@mui/material": "^5.2.3",
     "csv-parser": "^3.0.0",
     "next": "11.1.2",
     "node-sass": "^4.14.1",
