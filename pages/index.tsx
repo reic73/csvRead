@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { csvToArray } from "../helpers/csv-reader";
 import { errorHandler, errorMessage } from "../helpers/error-handler";
 import Button from "@mui/material/Button";
-import StickyHeadTable from "../components/transaction-table";
+import TransactionTable from "../components/transaction-table";
+import SummaryContainer from "../components/summary-container";
 import { getMismatchedData } from "../helpers/reconcile";
 
 const Home = () => {
@@ -11,6 +12,8 @@ const Home = () => {
   const [transactionStatement, setTransactionStatement] = useState<any[]>([]);
   const [rawHeaders, setRawHeaders] = useState<any[]>([]);
   const [mismatchData, setMisMatchData] = useState<any[]>([]);
+  const [summaryData, setSummaryData] = useState<{ [index: string]: any }>({});
+  const [appendedRawHeader, setAppendedRawHeader] = useState<any[]>([]);
   const [canCheck, setCanCheck] = useState<undefined | boolean>(undefined);
 
   const onSelectFile = (
@@ -63,14 +66,16 @@ const Home = () => {
         transactionStatement,
         rawHeaders
       );
-      console.log("check result", mismatchResponse);
+
       setMisMatchData(mismatchResponse.objectFormatList);
+      setAppendedRawHeader(mismatchResponse.appendedHeaders);
+      setSummaryData(mismatchResponse.summaryReport);
     }
   };
 
   return (
     <>
-      <div className="flex justify-center text-2xl font-bold">
+      <div className="flex justify-center text-2xl font-bold my-10">
         Data Reconciliation
       </div>
 
@@ -104,12 +109,21 @@ const Home = () => {
 
         <div className=" my-4 p-4 border rounded">
           {mismatchData.length > 0 ? (
-            <StickyHeadTable />
+            <TransactionTable headers={appendedRawHeader} rows={mismatchData} />
           ) : (
-            <div className="border flex justify-center text-gray-500">
+            <div className="flex justify-center text-gray-500">
               {canCheck ? " No mismatch data found" : "Please select file"}
             </div>
           )}
+        </div>
+
+        <div className=" my-4 p-4 border rounded">
+          {canCheck ? (
+            <>
+              <p className="text-lg font-bold mb-4">Summary</p>
+              <SummaryContainer data={summaryData} />
+            </>
+          ) : null}
         </div>
       </div>
     </>

@@ -9,6 +9,8 @@ import { getSummaryReport } from "./summary-report";
 interface IMismatchedData {
   arrayFormatList: any[];
   objectFormatList: any[];
+  summaryReport: { [index: string]: any };
+  appendedHeaders: string[];
 }
 
 export const getMismatchedData = (
@@ -16,9 +18,9 @@ export const getMismatchedData = (
   transactionStatement: any[],
   rawHeaders: any[]
 ): IMismatchedData => {
-  let additionalHeaders = [];
-  additionalHeaders = rawHeaders.concat(["Remarks"]);
-  const standardNamingHeaders = getStandardNaming(additionalHeaders);
+  let appendedHeaders = [];
+  appendedHeaders = rawHeaders.concat(["Remarks"]);
+  const standardNamingHeaders = getStandardNaming(appendedHeaders);
 
   const mismatchedData = findMismatchData(
     bankStatement,
@@ -30,7 +32,7 @@ export const getMismatchedData = (
     arrayFormatList: mismatchedData.arrayFormat,
     objectFormatList: mismatchedData.objectFormat,
     summaryReport: mismatchedData.summaryReport,
-    additionalHeaders,
+    appendedHeaders,
   };
   return toReturn;
 };
@@ -63,13 +65,14 @@ const findMismatchData = (
 
     const hasDifferences = Object.keys(differences).length > 0;
     if (hasDifferences) {
+      const remarkText = getTextFromObject(differences);
       const mismatchData: { [index: string]: any } = {
         ...transactionDetails,
-        remarks: differences,
+        remarks: remarkText,
+        remarksObject: differences,
       };
 
       const mismatchDataArray: string[] = Object.values(transactionDetails);
-      const remarkText = getTextFromObject(differences);
       mismatchDataArray.push(remarkText);
 
       mismatchDataInArrayList.push(mismatchDataArray);
@@ -78,7 +81,6 @@ const findMismatchData = (
   });
 
   const summaryReport = getSummaryReport(processedData, headers);
-  console.log("summaryReport", summaryReport);
 
   return {
     objectFormat: mismatchDataInObjectList,
