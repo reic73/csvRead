@@ -11,7 +11,12 @@ const Home = () => {
   const [bankStatement, setBankStatement] = useState<any[]>([]);
   const [transactionStatement, setTransactionStatement] = useState<any[]>([]);
   const [rawHeaders, setRawHeaders] = useState<any[]>([]);
-  const [mismatchData, setMisMatchData] = useState<any[]>([]);
+  const [mismatchObjectFormatList, setMisMatchObjectFormatList] = useState<
+    any[]
+  >([]);
+  const [mismatchArrayFormatList, setMismatchArrayFormatList] = useState<any[]>(
+    []
+  );
   const [summaryData, setSummaryData] = useState<{ [index: string]: any }>({});
   const [appendedRawHeader, setAppendedRawHeader] = useState<any[]>([]);
   const [canCheck, setCanCheck] = useState<undefined | boolean>(undefined);
@@ -67,7 +72,8 @@ const Home = () => {
         rawHeaders
       );
 
-      setMisMatchData(mismatchResponse.objectFormatList);
+      setMisMatchObjectFormatList(mismatchResponse.objectFormatList);
+      setMismatchArrayFormatList(mismatchResponse.arrayFormatList);
       setAppendedRawHeader(mismatchResponse.appendedHeaders);
       setSummaryData(mismatchResponse.summaryReport);
     }
@@ -108,8 +114,14 @@ const Home = () => {
         </div>
 
         <div className=" my-4 p-4 border rounded">
-          {mismatchData.length > 0 ? (
-            <TransactionTable headers={appendedRawHeader} rows={mismatchData} />
+          {mismatchObjectFormatList.length > 0 ? (
+            <>
+              <TransactionTable
+                headers={appendedRawHeader}
+                rows={mismatchObjectFormatList}
+                downloadableData={mismatchArrayFormatList}
+              />
+            </>
           ) : (
             <div className="flex justify-center text-gray-500">
               {canCheck ? " No mismatch data found" : "Please select file"}
