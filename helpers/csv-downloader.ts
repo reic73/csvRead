@@ -1,7 +1,5 @@
 const downloadAsCsv = (data: any[], fileName: string) => {
-  const csvContent =
-    "data:text/csv;charset=utf-8," +
-    data.map((e: any) => e.join(",")).join("\n");
+  const csvContent = data.map((e: any) => e.join(",")).join("\n");
 
   const element = document.createElement("a");
   element.setAttribute(

@@ -1,11 +1,11 @@
-import InputFile from "../components/input-file";
 import React, { useState } from "react";
-import { csvToArray } from "../helpers/csv-reader";
-import { errorHandler, errorMessage } from "../helpers/error-handler";
-import Button from "@mui/material/Button";
 import TransactionTable from "../components/transaction-table";
 import SummaryContainer from "../components/summary-container";
+import InputFile from "../components/input-file";
+import { csvToArray } from "../helpers/csv-reader";
+import { errorHandler, errorMessage } from "../helpers/error-handler";
 import { getMismatchedData } from "../helpers/reconcile";
+import Button from "@mui/material/Button";
 
 const Home = () => {
   const [bankStatement, setBankStatement] = useState<any[]>([]);
